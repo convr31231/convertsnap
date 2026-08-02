@@ -114,6 +114,18 @@
                 </div>
             </div>
 
+            <!-- Элементы управления изменением размера (Ресайз) -->
+            <div class="resize-controls w-full sm:w-auto border-t sm:border-t-0 sm:border-l border-slate-800 pt-3 sm:pt-0 sm:pl-4">
+                <label class="text-xs text-slate-300 flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" id="resizeToggle" checked class="accent-indigo-500"> Изменять размер
+                </label>
+                <div class="flex items-center gap-2 mt-1.5">
+                    <input type="number" id="targetWidth" placeholder="Ширина (px)" class="bg-slate-800 border border-slate-700 rounded-lg text-xs px-2.5 py-1.5 text-white w-24 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <span class="text-slate-500 text-xs">×</span>
+                    <input type="number" id="targetHeight" placeholder="Высота (px)" class="bg-slate-800 border border-slate-700 rounded-lg text-xs px-2.5 py-1.5 text-white w-24 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                </div>
+            </div>
+
             <div id="pdfModeInfo" class="hidden text-xs text-indigo-400">
                 <i class="fa-solid fa-circle-info mr-1"></i> <span data-i18n="pdf_info_msg">Все загруженные файлы будут сформированы в PDF-документ.</span>
             </div>
@@ -700,6 +712,121 @@
             document.getElementById('totalFilesCount').textContent = t.files_count + fileQueue.length;
         }
 
+        // Функция изменения размера изображения через Canvas с учетом пропорций
+        async function resizeImage(file, maxWidth, maxHeight) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+
+                        // Если указаны конкретные размеры, рассчитываем пропорции
+                        if (maxWidth && maxHeight) {
+                            if (width > height) {
+                                if (width > maxWidth) {
+                                    height = Math.round((height * maxWidth) / width);
+                                    width = maxWidth;
+                                }
+                            } else {
+                                if (height > maxHeight) {
+                                    width = Math.round((width * maxHeight) / height);
+                                    height = maxHeight;
+                                }
+                            }
+                        } else {
+                            if (maxWidth && width > maxWidth) {
+                                height = Math.round((height * maxWidth) / width);
+                                width = maxWidth;
+                            }
+                            if (maxHeight && height > maxHeight) {
+                                width = Math.round((width * maxHeight) / height);
+                                height = maxHeight;
+                            }
+                        }
+
+                        // Рисуем изображение на холсте нужного размера
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Превращаем холст обратно в Blob нужного формата
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, file.type, 0.9);
+                    };
+                    
+                    img.onerror = (error) => reject(error);
+                };
+            });
+        }
+
+        async function processFileItem(fileItem) {
+            const { originalFile, element } = fileItem;
+            const quality = parseFloat(document.getElementById('qualityRange').value);
+            const progressBar = element.querySelector('.progress-bar-inner');
+
+            // Параметры ресайза из интерфейса
+            const isResizeActive = document.getElementById('resizeToggle').checked;
+            const targetWidth = parseInt(document.getElementById('targetWidth').value) || null;
+            const targetHeight = parseInt(document.getElementById('targetHeight').value) || null;
+
+            try {
+                if (progressBar) progressBar.style.width = '30%';
+
+                let fileToProcess = originalFile;
+
+                // Обработка HEIC если нужно
+                if (fileToProcess.name.toLowerCase().endsWith('.heic')) {
+                    const res = await heic2any({ blob: fileToProcess, toType: 'image/jpeg' });
+                    fileToProcess = Array.isArray(res) ? res[0] : res;
+                }
+
+                // Изменение размера перед конвертацией (если включено и заданы размеры)
+                if (currentMode !== 'mergePdf' && isResizeActive && (targetWidth || targetHeight)) {
+                    fileToProcess = await resizeImage(fileToProcess, targetWidth, targetHeight);
+                }
+
+                if (progressBar) progressBar.style.width = '60%';
+
+                let finalBlob = null;
+                let ext = 'jpg';
+
+                if (currentMode === 'images') {
+                    const mime = document.getElementById('targetFormat').value;
+                    finalBlob = await canvasConvertImage(fileToProcess, mime, quality);
+                    ext = mime.split('/')[1].replace('jpeg', 'jpg');
+                } 
+                else if (currentMode === 'toPdf') {
+                    finalBlob = await convertImageToPdf(fileToProcess);
+                    ext = 'pdf';
+                }
+                else if (currentMode === 'mergePdf') {
+                    finalBlob = originalFile;
+                    ext = 'pdf';
+                }
+
+                if (progressBar) progressBar.style.width = '100%';
+
+                const origName = originalFile.name.substring(0, originalFile.name.lastIndexOf('.')) || originalFile.name;
+                fileItem.convertedBlob = finalBlob;
+                fileItem.outputName = `${origName}_converted.${ext}`;
+
+                updateRowSuccess(fileItem);
+                saveToHistory(fileItem.outputName, finalBlob.size);
+            } catch (err) {
+                console.error(err);
+                updateRowError(element);
+            }
+        }
+
         function canvasConvertImage(fileOrBlob, mimeType, quality) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -725,67 +852,21 @@
             });
         }
 
-        async function processFileItem(fileItem) {
-            const { originalFile, element } = fileItem;
-            const quality = parseFloat(document.getElementById('qualityRange').value);
-            const progressBar = element.querySelector('.progress-bar-inner');
-
-            try {
-                if (progressBar) progressBar.style.width = '40%';
-
-                let finalBlob = null;
-                let ext = 'jpg';
-
-                if (currentMode === 'images') {
-                    const mime = document.getElementById('targetFormat').value;
-                    let blobToProcess = originalFile;
-
-                    if (originalFile.name.toLowerCase().endsWith('.heic')) {
-                        const res = await heic2any({ blob: originalFile, toType: 'image/jpeg' });
-                        blobToProcess = Array.isArray(res) ? res[0] : res;
-                    }
-
-                    finalBlob = await canvasConvertImage(blobToProcess, mime, quality);
-                    ext = mime.split('/')[1].replace('jpeg', 'jpg');
-                } 
-                else if (currentMode === 'toPdf') {
-                    finalBlob = await convertImageToPdf(originalFile);
-                    ext = 'pdf';
-                }
-                else if (currentMode === 'mergePdf') {
-                    finalBlob = originalFile;
-                    ext = 'pdf';
-                }
-
-                if (progressBar) progressBar.style.width = '100%';
-
-                const origName = originalFile.name.substring(0, originalFile.name.lastIndexOf('.')) || originalFile.name;
-                fileItem.convertedBlob = finalBlob;
-                fileItem.outputName = `${origName}_converted.${ext}`;
-
-                updateRowSuccess(fileItem);
-                saveToHistory(fileItem.outputName, finalBlob.size);
-            } catch (err) {
-                console.error(err);
-                updateRowError(element);
-            }
-        }
-
-        async function convertImageToPdf(file) {
-            let imageBlob = file;
-            if (file.name.toLowerCase().endsWith('.heic')) {
-                const res = await heic2any({ blob: file, toType: 'image/jpeg' });
-                imageBlob = Array.isArray(res) ? res[0] : res;
-            } else if (file.name.toLowerCase().endsWith('.webp')) {
-                imageBlob = await canvasConvertImage(file, 'image/jpeg', 0.9);
-            }
-
+        async function convertImageToPdf(imageBlob) {
             const arrayBuffer = await imageBlob.arrayBuffer();
             const pdfDoc = await PDFLib.PDFDocument.create();
             
-            let pdfImage = (imageBlob.type === 'image/png') ? 
-                await pdfDoc.embedPng(arrayBuffer) : 
-                await pdfDoc.embedJpg(arrayBuffer);
+            let pdfImage;
+            try {
+                pdfImage = (imageBlob.type === 'image/png') ? 
+                    await pdfDoc.embedPng(arrayBuffer) : 
+                    await pdfDoc.embedJpg(arrayBuffer);
+            } catch (e) {
+                // Если формат не распознан напрямую в PDF-либе, форсируем JPG через canvas
+                const fallbackBlob = await canvasConvertImage(imageBlob, 'image/jpeg', 0.9);
+                const fallbackBuffer = await fallbackBlob.arrayBuffer();
+                pdfImage = await pdfDoc.embedJpg(fallbackBuffer);
+            }
 
             const page = pdfDoc.addPage([pdfImage.width, pdfImage.height]);
             page.drawImage(pdfImage, { x: 0, y: 0, width: pdfImage.width, height: pdfImage.height });
