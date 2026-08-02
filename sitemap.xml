@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <!-- Повторяется для каждого языка (ru, en, es, pt, de, fr, zh, ja, ar) -->
+  <url>
+    <loc>https://convertsnap.com/ru/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://convertsnap.com/ru/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://convertsnap.com/en/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://convertsnap.com/es/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://convertsnap.com/pt/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://convertsnap.com/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://convertsnap.com/fr/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://convertsnap.com/zh/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://convertsnap.com/ja/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://convertsnap.com/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://convertsnap.com/en/" />
+  </url>
+
+  <url>
+    <loc>https://convertsnap.com/en/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://convertsnap.com/ru/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://convertsnap.com/en/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://convertsnap.com/es/" />
+    <xhtml:link rel="alternate" hreflang="pt" href="https://convertsnap.com/pt/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://convertsnap.com/de/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://convertsnap.com/fr/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://convertsnap.com/zh/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://convertsnap.com/ja/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://convertsnap.com/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://convertsnap.com/en/" />
+  </url>
+  
+  <!-- Аналогичные блоки для остальных языковых директорий -->
+</urlset>

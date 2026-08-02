@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ru" id="htmlTag" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConvertSnap — Media & PDF Converter</title>
+    
+    <!-- PWA Web App Meta -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Tailwind CSS & Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SortableJS для Drag-to-Reorder -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+    <!-- JS Библиотеки -->
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+
+    <style>
+        .ghost-class { opacity: 0.4; background: #1e1b4b; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans select-none">
+
+    <!-- Шапка -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur py-4 px-6">
+        <div class="max-w-5xl mx-auto flex justify-between items-center gap-2">
+            <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-repeat text-xl"></i>
+                </div>
+                <span class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">ConvertSnap</span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <span data-i18n="badge_privacy" class="hidden sm:inline-block text-xs text-slate-400 bg-slate-800 py-1 px-3 rounded-full border border-slate-700">100% Приватно</span>
+                
+                <select id="langSelect" class="bg-slate-800 border border-slate-700 text-xs rounded-lg px-2.5 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="pt">Português</option>
+                    <option value="ar">العربية</option>
+                    <option value="zh">中文</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="de">Deutsch</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto p-4 sm:p-6 flex-grow flex flex-col">
+        
+        <!-- Вкладки -->
+        <div class="flex bg-slate-900 p-1.5 rounded-2xl border border-slate-800 mb-6 shadow-lg">
+            <button id="tabImages" class="tab-btn flex-1 py-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow">
+                <i class="fa-regular fa-image text-base"></i>
+                <span data-i18n="tab_images">Конвертер Фото</span>
+            </button>
+            <button id="tabToPdf" class="tab-btn flex-1 py-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-file-pdf text-base"></i>
+                <span data-i18n="tab_to_pdf">Картинку в PDF</span>
+            </button>
+            <button id="tabMergePdf" class="tab-btn flex-1 py-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-object-group text-base"></i>
+                <span data-i18n="tab_merge_pdf">Склеить PDF</span>
+            </button>
+        </div>
+
+        <!-- Настройки -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-wrap gap-4 items-center justify-between mb-4">
+            <div id="imageSettings" class="flex flex-wrap items-center gap-4">
+                <div>
+                    <label data-i18n="lbl_format" class="block text-xs text-slate-400 mb-1">Формат вывода:</label>
+                    <select id="targetFormat" class="bg-slate-800 border border-slate-700 rounded-lg text-xs px-3 py-1.5 text-white focus:outline-none">
+                        <option value="image/jpeg" selected>JPG</option>
+                        <option value="image/png">PNG</option>
+                        <option value="image/webp">WEBP</option>
+                    </select>
+                </div>
+                <div>
+                    <label data-i18n="lbl_quality" class="block text-xs text-slate-400 mb-1">Качество:</label>
+                    <input type="range" id="qualityRange" min="0.3" max="1" step="0.05" value="0.85" class="accent-indigo-500 cursor-pointer">
+                    <span id="qualityVal" class="text-xs text-indigo-400 ml-1">85%</span>
+                </div>
+            </div>
+
+            <div id="pdfModeInfo" class="hidden text-xs text-indigo-400">
+                <i class="fa-solid fa-circle-info mr-1"></i> <span data-i18n="pdf_info_msg">Все загруженные файлы будут сформированы в PDF-документ.</span>
+            </div>
+
+            <div class="flex items-center gap-2 ml-auto rtl:ml-0 rtl:mr-auto">
+                <button id="urlModalBtn" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1">
+                    <i class="fa-solid fa-link mr-1"></i> <span data-i18n="btn_from_url">Из URL</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Drag & Drop Зона -->
+        <div id="dropZone" class="border-2 border-dashed border-indigo-500/50 hover:border-indigo-400 bg-indigo-950/10 hover:bg-indigo-950/20 rounded-2xl p-8 text-center cursor-pointer transition relative group overflow-hidden">
+            <input type="file" id="fileInput" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+            <div class="space-y-3 pointer-events-none">
+                <div class="w-14 h-14 bg-indigo-600/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                    <i id="dropIcon" class="fa-solid fa-file-arrow-up text-2xl"></i>
+                </div>
+                <div>
+                    <p id="dropTitle" class="text-base font-medium text-slate-200">
+                        <span data-i18n="drop_title">Перетащите файлы сюда или</span> 
+                        <span data-i18n="drop_select" class="text-indigo-400 underline">выберите</span>
+                    </p>
+                    <p id="dropSubtitle" class="text-xs text-slate-400 mt-1">Поддерживаются HEIC, WEBP, JPG, PNG</p>
+                    <p data-i18n="paste_hint" class="text-[11px] text-indigo-400/80 mt-2 bg-indigo-950/40 inline-block px-3 py-1 rounded-full border border-indigo-900/50">
+                        <i class="fa-regular fa-clipboard mr-1"></i> Можно вставить из буфера обмена (Ctrl+V)
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Элементы управления -->
+        <div id="actionControls" class="hidden justify-between items-center my-4">
+            <span id="totalFilesCount" class="text-sm text-slate-400">Файлов: 0</span>
+            <div class="flex space-x-2 rtl:space-x-reverse">
+                <button id="clearAllBtn" data-i18n="btn_clear" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg transition">Очистить всё</button>
+                <button id="downloadAllBtn" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg transition shadow-lg shadow-indigo-500/20 flex items-center gap-1">
+                    <i class="fa-solid fa-download"></i> <span data-i18n="btn_download">Скачать результат</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Список файлов -->
+        <div id="fileList" class="space-y-3 my-2"></div>
+
+        <!-- Блок Истории Конвертаций -->
+        <section id="historySection" class="mt-8 border-t border-slate-900 pt-6 hidden">
+            <div class="flex justify-between items-center mb-3">
+                <h3 data-i18n="history_title" class="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> Недавние файлы
+                </h3>
+                <button id="clearHistoryBtn" data-i18n="btn_clear" class="text-xs text-slate-500 hover:text-slate-300 transition">Очистить</button>
+            </div>
+            <div id="historyList" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+        </section>
+
+    </main>
+
+    <!-- Модальное окно загрузки по URL -->
+    <div id="urlModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 data-i18n="modal_url_title" class="text-base font-semibold text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-link text-indigo-400"></i> Загрузить по ссылке
+                </h3>
+                <button id="closeUrlModal" class="text-slate-400 hover:text-white text-lg transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div>
+                <input type="url" id="fileUrlInput" placeholder="https://example.com/image.jpg" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <p id="urlErrorMsg" class="text-[11px] text-rose-500 mt-1.5 hidden"></p>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button id="cancelUrlBtn" data-i18n="modal_btn_cancel" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs transition">Отмена</button>
+                <button id="fetchUrlBtn" data-i18n="modal_btn_load" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs transition shadow-lg shadow-indigo-500/20 flex items-center gap-2">
+                    <span>Загрузить</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-600">
+        &copy; 2026 ConvertSnap. All rights reserved.
+    </footer>
+
+    <script>
+        const translations = {
+            ru: {
+                badge_privacy: "100% Приватно",
+                tab_images: "Конвертер Фото",
+                tab_to_pdf: "Картинку в PDF",
+                tab_merge_pdf: "Склеить PDF",
+                lbl_format: "Формат вывода:",
+                lbl_quality: "Качество:",
+                pdf_info_msg: "Все загруженные файлы будут сформированы в PDF-документ.",
+                btn_from_url: "Из URL",
+                drop_title: "Перетащите файлы сюда или",
+                drop_select: "выберите",
+                drop_sub_images: "Поддерживаются HEIC, WEBP, JPG, PNG",
+                drop_sub_topdf: "Выберите изображения для конвертации в PDF",
+                drop_sub_mergepdf: "Выберите несколько PDF-файлов для объединения",
+                paste_hint: "Можно вставить из буфера обмена (Ctrl+V)",
+                btn_clear: "Очистить всё",
+                btn_download: "Скачать результат",
+                btn_download_item: "Скачать",
+                status_processing: "Обработка...",
+                status_done: "Готово",
+                status_error: "Ошибка",
+                files_count: "Файлов: ",
+                history_title: "Недавние конвертации",
+                modal_url_title: "Загрузить по ссылке",
+                modal_btn_cancel: "Отмена",
+                modal_btn_load: "Загрузить",
+                err_cors_fetch: "Не удалось загрузить файл. Возможно, сервер блокирует сторонние запросы (CORS)."
+            },
+            en: {
+                badge_privacy: "100% Private",
+                tab_images: "Image Converter",
+                tab_to_pdf: "Image to PDF",
+                tab_merge_pdf: "Merge PDF",
+                lbl_format: "Output Format:",
+                lbl_quality: "Quality:",
+                pdf_info_msg: "All uploaded files will be combined into a PDF document.",
+                btn_from_url: "From URL",
+                drop_title: "Drag & drop files here or",
+                drop_select: "browse",
+                drop_sub_images: "Supports HEIC, WEBP, JPG, PNG",
+                drop_sub_topdf: "Select images to convert into PDF",
+                drop_sub_mergepdf: "Select multiple PDF files to merge",
+                paste_hint: "Paste from clipboard supported (Ctrl+V)",
+                btn_clear: "Clear All",
+                btn_download: "Download Result",
+                btn_download_item: "Download",
+                status_processing: "Processing...",
+                status_done: "Done",
+                status_error: "Error",
+                files_count: "Files: ",
+                history_title: "Recent Conversions",
+                modal_url_title: "Load from URL",
+                modal_btn_cancel: "Cancel",
+                modal_btn_load: "Load",
+                err_cors_fetch: "Failed to download file. The server may be blocking cross-origin requests (CORS)."
+            },
+            es: {
+                badge_privacy: "100% Privado",
+                tab_images: "Convertidor de Imágenes",
+                tab_to_pdf: "Imagen a PDF",
+                tab_merge_pdf: "Unir PDF",
+                lbl_format: "Formato de salida:",
+                lbl_quality: "Calidad:",
+                pdf_info_msg: "Todos los archivos se combinarán en un documento PDF.",
+                btn_from_url: "Desde URL",
+                drop_title: "Arrastra archivos aquí o",
+                drop_select: "selecciona",
+                drop_sub_images: "Soporta HEIC, WEBP, JPG, PNG",
+                drop_sub_topdf: "Selecciona imágenes para convertir a PDF",
+                drop_sub_mergepdf: "Selecciona varios archivos PDF para unir",
+                paste_hint: "Puedes pegar desde el portapapeles (Ctrl+V)",
+                btn_clear: "Limpiar todo",
+                btn_download: "Descargar resultado",
+                btn_download_item: "Descargar",
+                status_processing: "Procesando...",
+                status_done: "Listo",
+                status_error: "Error",
+                files_count: "Archivos: ",
+                history_title: "Conversiones recientes",
+                modal_url_title: "Cargar desde URL",
+                modal_btn_cancel: "Cancelar",
+                modal_btn_load: "Cargar",
+                err_cors_fetch: "Error al descargar el archivo. El servidor puede estar bloqueando solicitudes CORS."
+            },
+            pt: {
+                badge_privacy: "100% Privado",
+                tab_images: "Conversor de Imagens",
+                tab_to_pdf: "Imagem para PDF",
+                tab_merge_pdf: "Juntar PDF",
+                lbl_format: "Formato de saída:",
+                lbl_quality: "Qualidade:",
+                pdf_info_msg: "Todos os arquivos serão combinados em um documento PDF.",
+                btn_from_url: "De URL",
+                drop_title: "Arraste os arquivos aqui ou",
+                drop_select: "procure",
+                drop_sub_images: "Suporta HEIC, WEBP, JPG, PNG",
+                drop_sub_topdf: "Selecione imagens para converter em PDF",
+                drop_sub_mergepdf: "Selecione múltiplos arquivos PDF para juntar",
+                paste_hint: "Suporta colar da área de transferência (Ctrl+V)",
+                btn_clear: "Limpar tudo",
+                btn_download: "Baixar resultado",
+                btn_download_item: "Baixar",
+                status_processing: "Processando...",
+                status_done: "Concluído",
+                status_error: "Erro",
+                files_count: "Arquivos: ",
+                history_title: "Conversões recentes",
+                modal_url_title: "Carregar de URL",
+                modal_btn_cancel: "Cancelar",
+                modal_btn_load: "Carregar",
+                err_cors_fetch: "Falha ao baixar o arquivo. O servidor pode estar bloqueando solicitações CORS."
+            },
+            ar: {
+                badge_privacy: "خاص 100%",
+                tab_images: "محول الصور",
+                tab_to_pdf: "صورة إلى PDF",
+                tab_merge_pdf: "دمج PDF",
+                lbl_format: "صيغة الإخراج:",
+                lbl_quality: "الجودة:",
+                pdf_info_msg: "سيتم تجميع جميع الملفات المرفوعة في مستند PDF واحد.",
+                btn_from_url: "من رابط",
+                drop_title: "اسحب الملفات هنا أو",
+                drop_select: "تصفح",
+                drop_sub_images: "يدعم HEIC, WEBP, JPG, PNG",
+                drop_sub_topdf: "اختر الصور لتحويلها إلى PDF",
+                drop_sub_mergepdf: "اختر عدة ملفات PDF لدمجها",
+                paste_hint: "يمكنك اللصق من الحافظة (Ctrl+V)",
+                btn_clear: "مسح الكل",
+                btn_download: "تحميل النتيجة",
+                btn_download_item: "تحميل",
+                status_processing: "جاري المعالجة...",
+                status_done: "تم",
+                status_error: "خطأ",
+                files_count: "الملفات: ",
+                history_title: "التواريخ الأخيرة",
+                modal_url_title: "تحميل من رابط",
+                modal_btn_cancel: "إلغاء",
+                modal_btn_load: "تحميل",
+                err_cors_fetch: "فشل تحميل الملف. قد يقوم الخادم بحظر الطلبات (CORS)."
+            },
+            zh: {
+                badge_privacy: "100% 隐私保护",
+                tab_images: "图片转换器",
+                tab_to_pdf: "图片转 PDF",
+                tab_merge_pdf: "合并 PDF",
+                lbl_format: "输出格式：",
+                lbl_quality: "质量：",
+                pdf_info_msg: "所有上传的文件将被合并为一个 PDF 文档。",
+                btn_from_url: "网络链接",
+                drop_title: "拖拽文件到这里 或",
+                drop_select: "点击选择",
+                drop_sub_images: "支持 HEIC, WEBP, JPG, PNG",
+                drop_sub_topdf: "选择要转换为 PDF 的图片",
+                drop_sub_mergepdf: "选择多个 PDF 文件进行合并",
+                paste_hint: "支持剪贴板粘贴 (Ctrl+V)",
+                btn_clear: "清空所有",
+                btn_download: "下载结果",
+                btn_download_item: "下载",
+                status_processing: "处理中...",
+                status_done: "完成",
+                status_error: "错误",
+                files_count: "文件数：",
+                history_title: "最近转换记录",
+                modal_url_title: "从链接加载",
+                modal_btn_cancel: "取消",
+                modal_btn_load: "加载",
+                err_cors_fetch: "无法下载文件。目标服务器可能阻止了跨域请求 (CORS)。"
+            },
+            ja: {
+                badge_privacy: "100% プライベート",
+                tab_images: "画像変換",
+                tab_to_pdf: "画像からPDF",
+                tab_merge_pdf: "PDF結合",
+                lbl_format: "出力形式:",
+                lbl_quality: "画質:",
+                pdf_info_msg: "アップロードされたすべてのファイルが1つのPDFにまとめられます。",
+                btn_from_url: "URLから",
+                drop_title: "ファイルをドロップ または",
+                drop_select: "選択",
+                drop_sub_images: "HEIC, WEBP, JPG, PNG 対応",
+                drop_sub_topdf: "PDFに変換する画像を選択",
+                drop_sub_mergepdf: "結合する複数のPDFを選択",
+                paste_hint: "クリップボードからの貼り付け対応 (Ctrl+V)",
+                btn_clear: "すべてクリア",
+                btn_download: "結果をダウンロード",
+                btn_download_item: "ダウンロード",
+                status_processing: "処理中...",
+                status_done: "完了",
+                status_error: "エラー",
+                files_count: "ファイル数: ",
+                history_title: " recent 変換履歴",
+                modal_url_title: "URLから読み込み",
+                modal_btn_cancel: "キャンセル",
+                modal_btn_load: "読み込み",
+                err_cors_fetch: "ファイルをダウンロードできませんでした。CORS制限がある可能性があります。"
+            },
+            ko: {
+                badge_privacy: "100% 개인정보 보호",
+                tab_images: "이미지 변환기",
+                tab_to_pdf: "이미지를 PDF로",
+                tab_merge_pdf: "PDF 병합",
+                lbl_format: "출력 형식:",
+                lbl_quality: "품질:",
+                pdf_info_msg: "업로드된 모든 파일이 하나의 PDF 문서로 결합됩니다.",
+                btn_from_url: "URL에서 가져오기",
+                drop_title: "파일을 여기에 드래그하거나",
+                drop_select: "찾아보기",
+                drop_sub_images: "HEIC, WEBP, JPG, PNG 지원",
+                drop_sub_topdf: "PDF로 변환할 이미지를 선택하세요",
+                drop_sub_mergepdf: "병합할 여러 PDF 파일을 선택하세요",
+                paste_hint: "클립보드 붙여넣기 지원 (Ctrl+V)",
+                btn_clear: "모두 지우기",
+                btn_download: "결과 다운로드",
+                btn_download_item: "다운로드",
+                status_processing: "처리 중...",
+                status_done: "완료",
+                status_error: "오류",
+                files_count: "파일 수: ",
+                history_title: "최근 변환 기록",
+                modal_url_title: "URL에서 불러오기",
+                modal_btn_cancel: "취소",
+                modal_btn_load: "불러오기",
+                err_cors_fetch: "파일을 다운로드하지 못했습니다. CORS 정책 때문일 수 있습니다."
+            },
+            hi: {
+                badge_privacy: "100% निजी",
+                tab_images: "इमेज कनवर्टर",
+                tab_to_pdf: "इमेज से PDF",
+                tab_merge_pdf: "PDF जोड़ें",
+                lbl_format: "आउटपुट प्रारूप:",
+                lbl_quality: "गुणवत्ता:",
+                pdf_info_msg: "सभी अपलोड की गई फ़ाइलें एक PDF दस्तावेज़ में संयोजित की जाएंगी।",
+                btn_from_url: "URL से",
+                drop_title: "फ़ाइलों को यहाँ खींचें या",
+                drop_select: "चुनें",
+                drop_sub_images: "HEIC, WEBP, JPG, PNG समर्थित",
+                drop_sub_topdf: "PDF में बदलने के लिए चित्र चुनें",
+                drop_sub_mergepdf: "जोड़ने के लिए कई PDF फ़ाइलें चुनें",
+                paste_hint: "क्लिपबोर्ड से पेस्ट करें (Ctrl+V)",
+                btn_clear: "सब साफ़ करें",
+                btn_download: "परिणाम डाउनलोड करें",
+                btn_download_item: "डाउनलोड",
+                status_processing: "प्रसंस्करण...",
+                status_done: "संपन्न",
+                status_error: "त्रुटि",
+                files_count: "फ़ाइलें: ",
+                history_title: "हाल के रूपांतरण",
+                modal_url_title: "URL से लोड करें",
+                modal_btn_cancel: "रद्द करें",
+                modal_btn_load: "लोड करें",
+                err_cors_fetch: "फ़ाइल डाउनलोड करने में विफल। सर्वर CORS अनुरोधों को ब्लॉक कर सकता है।"
+            },
+            de: {
+                badge_privacy: "100% Privat",
+                tab_images: "Bild-Konverter",
+                tab_to_pdf: "Bild zu PDF",
+                tab_merge_pdf: "PDF zusammenfügen",
+                lbl_format: "Ausgabeformat:",
+                lbl_quality: "Qualität:",
+                pdf_info_msg: "Alle hochgeladenen Dateien werden in einem PDF-Dokument zusammengefasst.",
+                btn_from_url: "Aus URL",
+                drop_title: "Dateien hierher ziehen oder",
+                drop_select: "auswählen",
+                drop_sub_images: "Unterstützt HEIC, WEBP, JPG, PNG",
+                drop_sub_topdf: "Wählen Sie Bilder aus, die in PDF umgewandelt werden sollen",
+                drop_sub_mergepdf: "Wählen Sie mehrere PDF-Dateien zum Zusammenfügen aus",
+                paste_hint: "Einfügen aus der Zwischenablage unterstützt (Strg+V)",
+                btn_clear: "Alles löschen",
+                btn_download: "Ergebnis herunterladen",
+                btn_download_item: "Download",
+                status_processing: "Verarbeitung...",
+                status_done: "Fertig",
+                status_error: "Fehler",
+                files_count: "Dateien: ",
+                history_title: "Verlauf",
+                modal_url_title: "Von URL laden",
+                modal_btn_cancel: "Abbrechen",
+                modal_btn_load: "Laden",
+                err_cors_fetch: "Datei konnte nicht heruntergeladen werden. Möglicherweise blockiert der Server CORS-Anfragen."
+            }
+        };
+
+        let currentLang = 'ru';
+        let currentMode = 'images';
+        let fileQueue = [];
+        let sortableInstance = null;
+
+        const fileList = document.getElementById('fileList');
+        const dropInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+
+        // Динамическое обновление ползунка качества
+        const qualityRange = document.getElementById('qualityRange');
+        const qualityVal = document.getElementById('qualityVal');
+        qualityRange.addEventListener('input', (e) => {
+            qualityVal.textContent = Math.round(e.target.value * 100) + '%';
+        });
+
+        // Проброс клика для зоны выбора файлов
+        dropZone.addEventListener('click', (e) => {
+            if (e.target !== dropInput) {
+                dropInput.click();
+            }
+        });
+
+        // Drag-to-Reorder Сортировка
+        sortableInstance = new Sortable(fileList, {
+            animation: 150,
+            ghostClass: 'ghost-class',
+            handle: '.drag-handle',
+            onEnd: () => {
+                const newQueue = [];
+                fileList.querySelectorAll('[data-id]').forEach(row => {
+                    const item = fileQueue.find(f => f.id === row.dataset.id);
+                    if (item) newQueue.push(item);
+                });
+                fileQueue = newQueue;
+            }
+        });
+
+        // Вставка из буфера обмена (Ctrl+V)
+        window.addEventListener('paste', (e) => {
+            const items = e.clipboardData.items;
+            const files = [];
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    if (file) files.push(file);
+                }
+            }
+            if (files.length > 0) handleFiles(files);
+        });
+
+        // Языковая система & RTL Поддержка
+        function initLanguage() {
+            const userLang = (navigator.language || navigator.userLanguage).substring(0, 2).toLowerCase();
+            currentLang = translations[userLang] ? userLang : 'en';
+            document.getElementById('langSelect').value = currentLang;
+            applyLanguage(currentLang);
+        }
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang] || translations['en'];
+
+            // RTL переключение для арабского
+            const htmlTag = document.getElementById('htmlTag');
+            if (lang === 'ar') {
+                htmlTag.setAttribute('dir', 'rtl');
+                htmlTag.setAttribute('lang', 'ar');
+            } else {
+                htmlTag.setAttribute('dir', 'ltr');
+                htmlTag.setAttribute('lang', lang);
+            }
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.textContent = t[key];
+            });
+
+            updateDropSubtitle();
+            renderHistory();
+        }
+
+        document.getElementById('langSelect').addEventListener('change', (e) => applyLanguage(e.target.value));
+
+        // Модальное окно URL
+        const urlModal = document.getElementById('urlModal');
+        const urlModalBtn = document.getElementById('urlModalBtn');
+        const closeUrlModal = document.getElementById('closeUrlModal');
+        const cancelUrlBtn = document.getElementById('cancelUrlBtn');
+        const fetchUrlBtn = document.getElementById('fetchUrlBtn');
+        const fileUrlInput = document.getElementById('fileUrlInput');
+        const urlErrorMsg = document.getElementById('urlErrorMsg');
+
+        function openModal() {
+            urlModal.classList.remove('hidden');
+            fileUrlInput.value = '';
+            urlErrorMsg.classList.add('hidden');
+            fileUrlInput.focus();
+        }
+
+        function closeModal() {
+            urlModal.classList.add('hidden');
+        }
+
+        urlModalBtn.addEventListener('click', openModal);
+        closeUrlModal.addEventListener('click', closeModal);
+        cancelUrlBtn.addEventListener('click', closeModal);
+
+        fetchUrlBtn.addEventListener('click', async () => {
+            const url = fileUrlInput.value.trim();
+            const t = translations[currentLang] || translations['en'];
+            
+            if (!url) return;
+
+            urlErrorMsg.classList.add('hidden');
+            fetchUrlBtn.disabled = true;
+            fetchUrlBtn.style.opacity = '0.6';
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('HTTP error ' + response.status);
+                
+                const blob = await response.blob();
+                let fileName = url.split('/').pop().split('#')[0].split('?')[0] || 'downloaded_file';
+                
+                if (!fileName.includes('.')) {
+                    const mimeExtMap = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'application/pdf': '.pdf' };
+                    fileName += mimeExtMap[blob.type] || '';
+                }
+
+                const file = new File([blob], fileName, { type: blob.type });
+                closeModal();
+                handleFiles([file]);
+            } catch (err) {
+                console.error(err);
+                urlErrorMsg.textContent = t.err_cors_fetch;
+                urlErrorMsg.classList.remove('hidden');
+            } finally {
+                fetchUrlBtn.disabled = false;
+                fetchUrlBtn.style.opacity = '1';
+            }
+        });
+
+        // Переключение режимов
+        const tabImages = document.getElementById('tabImages');
+        const tabToPdf = document.getElementById('tabToPdf');
+        const tabMergePdf = document.getElementById('tabMergePdf');
+
+        tabImages.addEventListener('click', () => switchTab('images'));
+        tabToPdf.addEventListener('click', () => switchTab('toPdf'));
+        tabMergePdf.addEventListener('click', () => switchTab('mergePdf'));
+
+        function switchTab(mode) {
+            currentMode = mode;
+            fileQueue = [];
+            fileList.innerHTML = '';
+            document.getElementById('actionControls').classList.add('hidden');
+
+            [tabImages, tabToPdf, tabMergePdf].forEach(btn => {
+                btn.className = "tab-btn flex-1 py-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 hover:text-white transition flex items-center justify-center gap-2";
+            });
+
+            if (mode === 'images') {
+                tabImages.className = "tab-btn flex-1 py-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow";
+                document.getElementById('imageSettings').classList.remove('hidden');
+                document.getElementById('pdfModeInfo').classList.add('hidden');
+                dropInput.accept = ".heic,.heif,.jpg,.jpeg,.png,.webp";
+            } else if (mode === 'toPdf') {
+                tabToPdf.className = "tab-btn flex-1 py-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow";
+                document.getElementById('imageSettings').classList.add('hidden');
+                document.getElementById('pdfModeInfo').classList.remove('hidden');
+                dropInput.accept = ".heic,.heif,.jpg,.jpeg,.png,.webp";
+            } else if (mode === 'mergePdf') {
+                tabMergePdf.className = "tab-btn flex-1 py-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow";
+                document.getElementById('imageSettings').classList.add('hidden');
+                document.getElementById('pdfModeInfo').classList.remove('hidden');
+                dropInput.accept = ".pdf";
+            }
+            updateDropSubtitle();
+        }
+
+        function updateDropSubtitle() {
+            const t = translations[currentLang] || translations['en'];
+            const dropSubtitle = document.getElementById('dropSubtitle');
+            if (currentMode === 'images') dropSubtitle.textContent = t.drop_sub_images;
+            else if (currentMode === 'toPdf') dropSubtitle.textContent = t.drop_sub_topdf;
+            else if (currentMode === 'mergePdf') dropSubtitle.textContent = t.drop_sub_mergepdf;
+        }
+
+        dropInput.addEventListener('change', (e) => handleFiles(Array.from(e.target.files)));
+
+        async function handleFiles(files) {
+            if (!files.length) return;
+            const t = translations[currentLang] || translations['en'];
+            const actionControls = document.getElementById('actionControls');
+            actionControls.classList.remove('hidden');
+            actionControls.classList.add('flex');
+
+            for (let file of files) {
+                const fileId = Math.random().toString(36).substring(7);
+                const itemRow = createFileRow(file, fileId);
+                fileList.appendChild(itemRow);
+
+                const fileItem = {
+                    id: fileId,
+                    originalFile: file,
+                    convertedBlob: null,
+                    outputName: '',
+                    element: itemRow
+                };
+                fileQueue.push(fileItem);
+                await processFileItem(fileItem);
+            }
+            document.getElementById('totalFilesCount').textContent = t.files_count + fileQueue.length;
+        }
+
+        function canvasConvertImage(fileOrBlob, mimeType, quality) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(fileOrBlob);
+                img.onload = () => {
+                    URL.revokeObjectURL(url);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    if (mimeType === 'image/jpeg') {
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas error')), mimeType, quality);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject(new Error('Error reading image'));
+                };
+                img.src = url;
+            });
+        }
+
+        async function processFileItem(fileItem) {
+            const { originalFile, element } = fileItem;
+            const quality = parseFloat(document.getElementById('qualityRange').value);
+            const progressBar = element.querySelector('.progress-bar-inner');
+
+            try {
+                if (progressBar) progressBar.style.width = '40%';
+
+                let finalBlob = null;
+                let ext = 'jpg';
+
+                if (currentMode === 'images') {
+                    const mime = document.getElementById('targetFormat').value;
+                    let blobToProcess = originalFile;
+
+                    if (originalFile.name.toLowerCase().endsWith('.heic')) {
+                        const res = await heic2any({ blob: originalFile, toType: 'image/jpeg' });
+                        blobToProcess = Array.isArray(res) ? res[0] : res;
+                    }
+
+                    finalBlob = await canvasConvertImage(blobToProcess, mime, quality);
+                    ext = mime.split('/')[1].replace('jpeg', 'jpg');
+                } 
+                else if (currentMode === 'toPdf') {
+                    finalBlob = await convertImageToPdf(originalFile);
+                    ext = 'pdf';
+                }
+                else if (currentMode === 'mergePdf') {
+                    finalBlob = originalFile;
+                    ext = 'pdf';
+                }
+
+                if (progressBar) progressBar.style.width = '100%';
+
+                const origName = originalFile.name.substring(0, originalFile.name.lastIndexOf('.')) || originalFile.name;
+                fileItem.convertedBlob = finalBlob;
+                fileItem.outputName = `${origName}_converted.${ext}`;
+
+                updateRowSuccess(fileItem);
+                saveToHistory(fileItem.outputName, finalBlob.size);
+            } catch (err) {
+                console.error(err);
+                updateRowError(element);
+            }
+        }
+
+        async function convertImageToPdf(file) {
+            let imageBlob = file;
+            if (file.name.toLowerCase().endsWith('.heic')) {
+                const res = await heic2any({ blob: file, toType: 'image/jpeg' });
+                imageBlob = Array.isArray(res) ? res[0] : res;
+            } else if (file.name.toLowerCase().endsWith('.webp')) {
+                imageBlob = await canvasConvertImage(file, 'image/jpeg', 0.9);
+            }
+
+            const arrayBuffer = await imageBlob.arrayBuffer();
+            const pdfDoc = await PDFLib.PDFDocument.create();
+            
+            let pdfImage = (imageBlob.type === 'image/png') ? 
+                await pdfDoc.embedPng(arrayBuffer) : 
+                await pdfDoc.embedJpg(arrayBuffer);
+
+            const page = pdfDoc.addPage([pdfImage.width, pdfImage.height]);
+            page.drawImage(pdfImage, { x: 0, y: 0, width: pdfImage.width, height: pdfImage.height });
+
+            const pdfBytes = await pdfDoc.save();
+            return new Blob([pdfBytes], { type: 'application/pdf' });
+        }
+
+        function createFileRow(file, id) {
+            const t = translations[currentLang] || translations['en'];
+            const row = document.createElement('div');
+            row.className = 'bg-slate-900 border border-slate-800 rounded-xl p-3 flex flex-col gap-2 relative';
+            row.dataset.id = id;
+            row.innerHTML = `
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3 rtl:space-x-reverse truncate">
+                        <i class="fa-solid fa-grip-vertical text-slate-600 drag-handle cursor-grab hover:text-slate-400"></i>
+                        <i class="fa-solid fa-file text-indigo-400 text-lg"></i>
+                        <div class="truncate">
+                            <p class="text-sm font-medium text-slate-200 truncate">${file.name}</p>
+                            <p class="text-xs text-slate-400">${formatBytes(file.size)}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 rtl:space-x-reverse">
+                        <span class="text-xs text-indigo-400 status-text">${t.status_processing}</span>
+                        <div class="btn-container"></div>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-1 overflow-hidden">
+                    <div class="bg-indigo-500 h-1 progress-bar-inner transition-all duration-300" style="width: 15%"></div>
+                </div>
+            `;
+            return row;
+        }
+
+        function updateRowSuccess(item) {
+            const { element, convertedBlob, outputName } = item;
+            const t = translations[currentLang] || translations['en'];
+            const statusText = element.querySelector('.status-text');
+            statusText.className = "text-xs text-emerald-400 font-medium";
+            statusText.textContent = t.status_done;
+
+            const url = URL.createObjectURL(convertedBlob);
+            element.querySelector('.btn-container').innerHTML = `
+                <a href="${url}" download="${outputName}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1">
+                    <i class="fa-solid fa-download"></i> ${t.btn_download_item}
+                </a>
+            `;
+        }
+
+        function updateRowError(element) {
+            const t = translations[currentLang] || translations['en'];
+            const statusText = element.querySelector('.status-text');
+            statusText.className = "text-xs text-rose-500 font-medium";
+            statusText.textContent = t.status_error;
+        }
+
+        function saveToHistory(name, size) {
+            let history = JSON.parse(localStorage.getItem('cs_history') || '[]');
+            history.unshift({ name, size, date: new Date().toLocaleTimeString() });
+            if (history.length > 6) history.pop();
+            localStorage.setItem('cs_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('cs_history') || '[]');
+            const historySection = document.getElementById('historySection');
+            const historyList = document.getElementById('historyList');
+
+            if (!history.length) {
+                historySection.classList.add('hidden');
+                return;
+            }
+
+            historySection.classList.remove('hidden');
+            historyList.innerHTML = history.map(item => `
+                <div class="bg-slate-900/50 border border-slate-800/80 p-2.5 rounded-lg flex justify-between items-center text-xs">
+                    <span class="text-slate-300 truncate max-w-[180px]">${item.name}</span>
+                    <span class="text-slate-500">${formatBytes(item.size)}</span>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+            localStorage.removeItem('cs_history');
+            renderHistory();
+        });
+
+        document.getElementById('downloadAllBtn').addEventListener('click', async () => {
+            if (currentMode === 'mergePdf') {
+                const pdfDoc = await PDFLib.PDFDocument.create();
+                for (let item of fileQueue) {
+                    const bytes = await item.originalFile.arrayBuffer();
+                    const docToMerge = await PDFLib.PDFDocument.load(bytes);
+                    const pages = await pdfDoc.copyPages(docToMerge, docToMerge.getPageIndices());
+                    pages.forEach(p => pdfDoc.addPage(p));
+                }
+                const mergedBytes = await pdfDoc.save();
+                const mergedBlob = new Blob([mergedBytes], { type: 'application/pdf' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(mergedBlob);
+                a.download = 'merged.pdf';
+                a.click();
+                return;
+            }
+
+            const ready = fileQueue.filter(f => f.convertedBlob);
+            if (!ready.length) return;
+
+            if (ready.length === 1) {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(ready[0].convertedBlob);
+                a.download = ready[0].outputName;
+                a.click();
+            } else {
+                const zip = new JSZip();
+                ready.forEach(f => zip.file(f.outputName, f.convertedBlob));
+                const content = await zip.generateAsync({ type: 'blob' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(content);
+                a.download = 'files.zip';
+                a.click();
+            }
+        });
+
+        document.getElementById('clearAllBtn').addEventListener('click', () => {
+            const t = translations[currentLang] || translations['en'];
+            fileList.innerHTML = '';
+            fileQueue = [];
+            document.getElementById('actionControls').classList.add('hidden');
+            document.getElementById('totalFilesCount').textContent = t.files_count + 0;
+        });
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        initLanguage();
+    </script>
+</body>
+</html>
