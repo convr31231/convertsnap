@@ -1,167 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
-  <!-- Русская версия -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
     <loc>https://convr31231.github.io/convertsnap/ru/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
-  <!-- Английская версия -->
   <url>
     <loc>https://convr31231.github.io/convertsnap/en/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
-  <!-- Испанская версия -->
   <url>
     <loc>https://convr31231.github.io/convertsnap/es/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
-  <!-- Португальская версия -->
   <url>
     <loc>https://convr31231.github.io/convertsnap/pt/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
-  <!-- Немецкая версия -->
   <url>
     <loc>https://convr31231.github.io/convertsnap/de/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
-  <!-- Французская версия -->
   <url>
     <loc>https://convr31231.github.io/convertsnap/fr/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
-  <!-- Китайская версия -->
   <url>
     <loc>https://convr31231.github.io/convertsnap/zh/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
-  <!-- Японская версия -->
   <url>
     <loc>https://convr31231.github.io/convertsnap/ja/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
-  <!-- Арабская версия -->
   <url>
     <loc>https://convr31231.github.io/convertsnap/ar/</loc>
     <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://convr31231.github.io/convertsnap/ru/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://convr31231.github.io/convertsnap/en/" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://convr31231.github.io/convertsnap/es/" />
-    <xhtml:link rel="alternate" hreflang="pt" href="https://convr31231.github.io/convertsnap/pt/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://convr31231.github.io/convertsnap/de/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://convr31231.github.io/convertsnap/fr/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://convr31231.github.io/convertsnap/zh/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://convr31231.github.io/convertsnap/ja/" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://convr31231.github.io/convertsnap/ar/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://convr31231.github.io/convertsnap/en/" />
   </url>
 
 </urlset>
